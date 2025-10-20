@@ -34,6 +34,6 @@ fire ball (green)
 # Time Details and Changelist
 <Add information to this section about the time you've taken for this task along with a professional changelist.>
 * Fixed compiler issue - Time Taken: 3 minutes
-* Added mouse movement for the paddle and hidden & locked cursor - Time taken: 25 minutes
+* Added mouse movement for the paddle and hidden & locked cursor - Time taken: 1 hour 
 * Created a restart function upon level loss or completion - Time taken: 15 minutes
-* Added a screen shake whenever the player loses a life - Time taken: 30 minutes
+* Added a screen shake whenever the player loses a life - Time taken: 45 minutes
