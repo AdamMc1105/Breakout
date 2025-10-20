@@ -41,15 +41,19 @@ void GameManager::update(float dt)
 
     if (_lives <= 0)
     {
-        _masterText.setString("Game over.");
+        _masterText.setString("Game over. Press R to restart!");
         // Show the cursor and unlock moevment.
         _window->setMouseCursorVisible(true);
         _window->setMouseCursorGrabbed(false);
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+            restartGame();
         return;
     }
     if (_levelComplete)
     {
-        _masterText.setString("Level completed.");
+        _masterText.setString("Level completed. Press R to restart!");
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+            restartGame();
         return;
     }
     // pause and pause handling
@@ -124,6 +128,30 @@ void GameManager::render()
 void GameManager::levelComplete()
 {
     _levelComplete = true;
+}
+
+void GameManager::restartGame()
+{
+    // Remove exisiting objects.
+    delete _paddle;
+    delete _ball;
+    delete _brickManager;
+    delete _powerupManager;
+    delete _messagingSystem;
+    delete _ui;
+
+    // Reset variables.
+    _lives = 3;
+    _time = 0.f;
+    _pause = false;
+    _pauseHold = 0.f;
+    _levelComplete = false;
+    _powerupInEffect = { none, 0.f };
+    _timeLastPowerupSpawned = 0.f;
+    _masterText.setString("");
+
+    // Reinitialize game
+    initialize();
 }
 
 sf::RenderWindow* GameManager::getWindow() const { return _window; }
