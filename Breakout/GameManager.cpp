@@ -30,6 +30,11 @@ void GameManager::initialize()
     // Hide the mouse cursor and lock it to the screen.
     _window->setMouseCursorVisible(false);
     _window->setMouseCursorGrabbed(true);
+
+    // Screen shake.
+    _regularView = _window->getView();
+    _window->setView(_regularView);
+
 }
 
 void GameManager::update(float dt)
@@ -45,6 +50,8 @@ void GameManager::update(float dt)
         // Show the cursor and unlock moevment.
         _window->setMouseCursorVisible(true);
         _window->setMouseCursorGrabbed(false);
+        // Set view back to regular position.
+        _window->setView(_regularView);
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
             restartGame();
         return;
@@ -52,6 +59,8 @@ void GameManager::update(float dt)
     if (_levelComplete)
     {
         _masterText.setString("Level completed. Press R to restart!");
+        // Set view back to regular position.
+        _window->setView(_regularView);
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
             restartGame();
         return;
@@ -69,6 +78,10 @@ void GameManager::update(float dt)
             // Show the mouse cursor and unlock from window bounds.
             _window->setMouseCursorVisible(true);
             _window->setMouseCursorGrabbed(false);
+            
+            // Stop screen shake if playing.
+            _window->setView(_regularView);
+
         }
         if (_pause && _pauseHold <= 0.f)
         {
@@ -79,6 +92,7 @@ void GameManager::update(float dt)
             // Hide the mouse cursor and lock it to the screen.
             _window->setMouseCursorVisible(false);
             _window->setMouseCursorGrabbed(true);
+
         }
     }
     if (_pause)
@@ -105,6 +119,26 @@ void GameManager::update(float dt)
     _paddle->update(dt);
     _ball->update(dt);
     _powerupManager->update(dt);
+
+    // Shake the screen.
+    if (_shakeDuration > 0.f)
+    {
+        // Randomise shake direction.
+        float offsetX = (rand() % 100 / 100.f - 0.5f) * 2 * _shakeMagnitude;
+        float offsetY = (rand() % 100 / 100.f - 0.5f) * 2 * _shakeMagnitude;
+
+        sf::View shakenView = _regularView;
+        shakenView.move(offsetX, offsetY);
+        _window->setView(shakenView);
+
+        _shakeDuration -= dt;
+    }
+    else
+    {
+        // Set to regular view.
+        _window->setView(_regularView);
+    }
+
 }
 
 void GameManager::loseLife()
@@ -112,7 +146,9 @@ void GameManager::loseLife()
     _lives--;
     _ui->lifeLost(_lives);
 
-    // TODO screen shake.
+    // Screen shake for half a second.
+    _shakeDuration = 0.5f;
+
 }
 
 void GameManager::render()
@@ -149,6 +185,8 @@ void GameManager::restartGame()
     _powerupInEffect = { none, 0.f };
     _timeLastPowerupSpawned = 0.f;
     _masterText.setString("");
+    _shakeDuration = 0.f;
+    _window->setView(_regularView);
 
     // Reinitialize game
     initialize();
