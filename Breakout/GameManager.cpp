@@ -26,6 +26,10 @@ void GameManager::initialize()
 
     // Create bricks
     _brickManager->createBricks(5, 10, 80.0f, 30.0f, 5.0f);
+
+    // Hide the mouse cursor and lock it to the screen.
+    _window->setMouseCursorVisible(false);
+    _window->setMouseCursorGrabbed(true);
 }
 
 void GameManager::update(float dt)
@@ -38,6 +42,8 @@ void GameManager::update(float dt)
     if (_lives <= 0)
     {
         _masterText.setString("Game over.");
+        // Show the cursor.
+        _window->setMouseCursorVisible(true);
         return;
     }
     if (_levelComplete)
@@ -54,12 +60,20 @@ void GameManager::update(float dt)
             _pause = true;
             _masterText.setString("paused.");
             _pauseHold = PAUSE_TIME_BUFFER;
+
+            // Show the mouse cursor and unlock from window bounds.
+            _window->setMouseCursorVisible(true);
+            _window->setMouseCursorGrabbed(false);
         }
         if (_pause && _pauseHold <= 0.f)
         {
             _pause = false;
             _masterText.setString("");
             _pauseHold = PAUSE_TIME_BUFFER;
+
+            // Hide the mouse cursor and lock it to the screen.
+            _window->setMouseCursorVisible(false);
+            _window->setMouseCursorGrabbed(true);
         }
     }
     if (_pause)
@@ -80,6 +94,7 @@ void GameManager::update(float dt)
     // move paddle
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) _paddle->moveRight(dt);
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) _paddle->moveLeft(dt);
+    _paddle->mouseMove();
 
     // update everything 
     _paddle->update(dt);

@@ -7,6 +7,7 @@ Paddle::Paddle(sf::RenderWindow* window)
     _sprite.setFillColor(sf::Color::Cyan);
     _sprite.setPosition((window->getSize().x - _width) / 2.0f, window->getSize().y - 50.0f);
     _sprite.setSize(sf::Vector2f(_width, PADDLE_HEIGHT));
+
 }
 
 Paddle::~Paddle()
@@ -33,8 +34,16 @@ void Paddle::moveRight(float dt)
     }
 }
 
+void Paddle::mouseMove() 
+{
+    // Set the paddles X position to the mouse x position.
+    _sprite.setPosition(sf::Mouse::getPosition(*_window).x - (_width /2), _sprite.getPosition().y);
+
+}
+
 void Paddle::update(float dt)
 {
+
     if (_timeInNewSize > 0)
     {
         _timeInNewSize -= dt;
