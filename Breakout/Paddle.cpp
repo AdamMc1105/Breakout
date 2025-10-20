@@ -36,9 +36,12 @@ void Paddle::moveRight(float dt)
 
 void Paddle::mouseMove() 
 {
-    // Set the paddles X position to the mouse x position.
-    _sprite.setPosition(sf::Mouse::getPosition(*_window).x - (_width /2), _sprite.getPosition().y);
+    // Clamp edges
+    float x = std::max(0.f, sf::Mouse::getPosition(*_window).x - (_width / 2.0f));
+    x = std::min(_window->getSize().x - _width, x);
 
+    // Set the x position.
+    _sprite.setPosition(x, _sprite.getPosition().y);
 }
 
 void Paddle::update(float dt)

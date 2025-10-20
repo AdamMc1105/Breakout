@@ -42,8 +42,9 @@ void GameManager::update(float dt)
     if (_lives <= 0)
     {
         _masterText.setString("Game over.");
-        // Show the cursor.
+        // Show the cursor and unlock moevment.
         _window->setMouseCursorVisible(true);
+        _window->setMouseCursorGrabbed(false);
         return;
     }
     if (_levelComplete)
