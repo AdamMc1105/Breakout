@@ -33,3 +33,5 @@ fire ball (green)
 
 # Time Details and Changelist
 <Add information to this section about the time you've taken for this task along with a professional changelist.>
+* Fixed compiler issue - Time Taken: 3 minutes
+* Added mouse movement for the paddle and hidden & locked cursor - Time taken: 25 minutes
