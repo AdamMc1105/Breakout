@@ -7,7 +7,10 @@ Ball::Ball(sf::RenderWindow* window, float velocity, GameManager* gameManager)
 {
     _sprite.setRadius(RADIUS);
     _sprite.setFillColor(sf::Color::Cyan);
-    _sprite.setPosition(0, 300);
+   
+    // Spawn new ball at random side of map.
+    float x = (rand() % 2 == 0) ? 0.f : _window->getSize().x - (2 * RADIUS);
+    _sprite.setPosition(x, 300);
 }
 
 Ball::~Ball()
@@ -81,18 +84,21 @@ void Ball::update(float dt)
     if ((position.x >= windowDimensions.x - 2 * RADIUS && _direction.x > 0) || (position.x <= 0 && _direction.x < 0))
     {
         _direction.x *= -1;
+        _gameManager->getAudioManager()->playSound("wall_hit");
     }
 
     // bounce on ceiling
     if (position.y <= 0 && _direction.y < 0)
     {
         _direction.y *= -1;
+        _gameManager->getAudioManager()->playSound("wall_hit");
     }
 
     // lose life bounce
     if (position.y > windowDimensions.y)
     {
-        _sprite.setPosition(0, 300);
+        float x = (rand() % 2 == 0) ? 0.f : _window->getSize().x - (2 * RADIUS);
+        _sprite.setPosition(x, 300);
         _direction = { 1, 1 };
         _gameManager->loseLife();
     }
@@ -107,6 +113,9 @@ void Ball::update(float dt)
 
         // Adjust position to avoid getting stuck inside the paddle
         _sprite.setPosition(_sprite.getPosition().x, _gameManager->getPaddle()->getBounds().top - 2 * RADIUS);
+
+        // Play sound when ball hits paddle.
+        _gameManager->getAudioManager()->playSound("paddle_hit");
     }
 
     // collision with bricks

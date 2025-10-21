@@ -5,7 +5,7 @@
 
 GameManager::GameManager(sf::RenderWindow* window)
     : _window(window), _paddle(nullptr), _ball(nullptr), _brickManager(nullptr), _powerupManager(nullptr),
-    _messagingSystem(nullptr), _ui(nullptr), _pause(false), _time(0.f), _lives(3), _pauseHold(0.f), _levelComplete(false),
+    _messagingSystem(nullptr), _ui(nullptr), _audioManager(nullptr), _pause(false), _time(0.f), _lives(3), _pauseHold(0.f), _levelComplete(false),
     _powerupInEffect({ none,0.f }), _timeLastPowerupSpawned(0.f)
 {
     _font.loadFromFile("font/montS.ttf");
@@ -13,6 +13,7 @@ GameManager::GameManager(sf::RenderWindow* window)
     _masterText.setPosition(50, 400);
     _masterText.setCharacterSize(48);
     _masterText.setFillColor(sf::Color::Yellow);
+
 }
 
 void GameManager::initialize()
@@ -21,8 +22,9 @@ void GameManager::initialize()
     _brickManager = new BrickManager(_window, this);
     _messagingSystem = new MessagingSystem(_window);
     _ball = new Ball(_window, 400.0f, this); 
-    _powerupManager = new PowerupManager(_window, _paddle, _ball);
+    _powerupManager = new PowerupManager(_window, _paddle, _ball, this);
     _ui = new UI(_window, _lives, this);
+    _audioManager = new AudioManager();
 
     // Create bricks
     _brickManager->createBricks(5, 10, 80.0f, 30.0f, 5.0f);
@@ -35,18 +37,23 @@ void GameManager::initialize()
     _regularView = _window->getView();
     _window->setView(_regularView);
 
+    // Start the background music.
+    _audioManager->playBackgroundMusic();
+
 }
 
 void GameManager::update(float dt)
 {
     _powerupInEffect = _powerupManager->getPowerupInEffect();
-    _ui->updatePowerupText(_powerupInEffect);
+    _ui->updatePowerupBar(_powerupInEffect);
     _powerupInEffect.second -= dt;
     
 
     if (_lives <= 0)
     {
         _masterText.setString("Game over. Press R to restart!");
+        //Stop the background music.
+        _audioManager->stopMusic();
         // Show the cursor and unlock moevment.
         _window->setMouseCursorVisible(true);
         _window->setMouseCursorGrabbed(false);
@@ -59,6 +66,11 @@ void GameManager::update(float dt)
     if (_levelComplete)
     {
         _masterText.setString("Level completed. Press R to restart!");
+        //Stop the background music.
+        _audioManager->stopMusic();
+        // Show the cursor and unlock moevment.
+        _window->setMouseCursorVisible(true);
+        _window->setMouseCursorGrabbed(false);
         // Set view back to regular position.
         _window->setView(_regularView);
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
@@ -82,6 +94,9 @@ void GameManager::update(float dt)
             // Stop screen shake if playing.
             _window->setView(_regularView);
 
+            // Pause sound effects.
+            _audioManager->togglePause();
+
         }
         if (_pause && _pauseHold <= 0.f)
         {
@@ -93,6 +108,8 @@ void GameManager::update(float dt)
             _window->setMouseCursorVisible(false);
             _window->setMouseCursorGrabbed(true);
 
+            // unpause sound effects
+            _audioManager->togglePause();
         }
     }
     if (_pause)
@@ -146,6 +163,13 @@ void GameManager::loseLife()
     _lives--;
     _ui->lifeLost(_lives);
 
+    // Game over sound effect
+    if(_lives <= 0)
+        _audioManager->playSound("game_over");
+    else
+        _audioManager->playSound("life_lost");
+
+
     // Screen shake for half a second.
     _shakeDuration = 0.5f;
 
@@ -175,6 +199,7 @@ void GameManager::restartGame()
     delete _powerupManager;
     delete _messagingSystem;
     delete _ui;
+    delete _audioManager;
 
     // Reset variables.
     _lives = 3;
@@ -197,3 +222,4 @@ UI* GameManager::getUI() const { return _ui; }
 Paddle* GameManager::getPaddle() const { return _paddle; }
 BrickManager* GameManager::getBrickManager() const { return _brickManager; }
 PowerupManager* GameManager::getPowerupManager() const { return _powerupManager; }
+AudioManager* GameManager::getAudioManager() const { return _audioManager; }
